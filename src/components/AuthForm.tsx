@@ -12,13 +12,13 @@ export default function AuthForm() {
     setError(null);
 
     try {
-      const { options } = await fetch('/api/auth/generate-challenge', {
+      const { optionsJSON } = await fetch('/api/auth/generate-challenge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: 'test-user' }),
       }).then(res => res.json());
 
-      const attestationResponse = await startRegistration(options);
+      const attestationResponse = await startRegistration({ optionsJSON });
 
       const response = await fetch('/api/auth/register', {
         method: 'POST',

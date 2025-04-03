@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
-import { verifyRegistrationResponse } from '@simplewebauthn/server';
-import { initFirebaseAdmin } from '@/lib/firebaseAdmin';
-import { getAuth } from 'firebase-admin/auth';
+import { NextResponse } from "next/server";
+import { verifyRegistrationResponse } from "@simplewebauthn/server";
+import { initFirebaseAdmin } from "@/lib/firebaseAdmin";
+import { getAuth } from "firebase-admin/auth";
 
 export async function POST(req: Request) {
   try {
@@ -16,12 +16,15 @@ export async function POST(req: Request) {
       expectedOrigin: process.env.NEXT_PUBLIC_ORIGIN!,
     });
 
-    if (!verification.verified) throw new Error('Invalid registration');
+    if (!verification.verified) throw new Error("Invalid registration");
 
     await auth.createUser({ uid });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: (error as Error).message }, { status: 400 });
+    return NextResponse.json(
+      { error: (error as Error).message },
+      { status: 400 }
+    );
   }
 }

@@ -5,7 +5,7 @@ export async function POST(req: Request) {
   const { username } = await req.json();
 
   const encoder = new TextEncoder();
-  const options = await generateRegistrationOptions({
+  const optionsJSON = await generateRegistrationOptions({
     rpName: "Your App",
     rpID: process.env.NEXT_PUBLIC_HOSTNAME!,
     userID: encoder.encode(username),
@@ -14,5 +14,5 @@ export async function POST(req: Request) {
     authenticatorSelection: { residentKey: "required" },
   });
 
-  return NextResponse.json({ options });
+  return NextResponse.json({ optionsJSON });
 }
