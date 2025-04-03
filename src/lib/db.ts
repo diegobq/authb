@@ -1,5 +1,5 @@
 import { fromBase64URL, toBase64URL } from "@/lib/base64URL";
-import { firestore } from "./firebaseAdmin";
+import { firestore } from "@/lib/firebaseAdmin";
 import { IRegistrationInfoDB, RegistrationInfoType } from "@/lib/type";
 
 function removeUndefined(obj: unknown): object {
