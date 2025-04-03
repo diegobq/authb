@@ -1,4 +1,12 @@
+import { fromBase64URL, toBase64URL } from "@/lib/base64URL";
 import { firestore } from "./firebaseAdmin";
+import { IRegistrationInfoDB, RegistrationInfoType } from "@/lib/type";
+
+function removeUndefined(obj: unknown): object {
+  return JSON.parse(
+    JSON.stringify(obj, (key, value) => (value === undefined ? null : value))
+  );
+}
 
 /**
  * Save the challenge for a user
@@ -23,15 +31,22 @@ export async function getChallengeFromDB(
 /**
  * Save the credential for a user
  */
-export async function saveCredentialToDB(userID: string, credential: unknown) {
-  // Recursively remove undefined values from the object
-  function removeUndefined(obj: unknown): object {
-    return JSON.parse(
-      JSON.stringify(obj, (key, value) => (value === undefined ? null : value))
-    );
-  }
+export async function saveCredentialToDB(
+  userID: string,
+  registrationInfo?: RegistrationInfoType
+) {
+  const registrationInfoDB: IRegistrationInfoDB = {
+    ...registrationInfo,
+    credential: {
+      id: registrationInfo?.credential.id || "",
+      counter: registrationInfo?.credential.counter || 0,
+      transports: registrationInfo?.credential.transports,
+      ...registrationInfo?.credential,
+      publicKey: toBase64URL(registrationInfo?.credential?.publicKey),
+    },
+  };
 
-  const sanitizedCredential = removeUndefined(credential);
+  const sanitizedCredential = removeUndefined(registrationInfoDB);
 
   await firestore
     .collection("credentials")
@@ -44,7 +59,25 @@ export async function saveCredentialToDB(userID: string, credential: unknown) {
  */
 export async function getCredentialFromDB(
   userID: string
-): Promise<unknown | null> {
+): Promise<RegistrationInfoType | null> {
   const doc = await firestore.collection("credentials").doc(userID).get();
-  return doc.exists ? doc.data() : null;
+
+  if (!doc.exists) return null;
+
+  const storedRegistrationInfo = doc.data() as IRegistrationInfoDB;
+
+  if (!storedRegistrationInfo || !storedRegistrationInfo.credential.publicKey)
+    return null;
+
+  const registrationInfo = {
+    ...storedRegistrationInfo,
+    credential: {
+      id: storedRegistrationInfo.credential.id,
+      counter: storedRegistrationInfo.credential.counter,
+      transports: storedRegistrationInfo.credential.transports,
+      publicKey: fromBase64URL(storedRegistrationInfo?.credential.publicKey),
+    },
+  };
+
+  return registrationInfo as RegistrationInfoType;
 }

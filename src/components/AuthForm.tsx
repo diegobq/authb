@@ -121,7 +121,7 @@ export default function AuthForm() {
       <button
         onClick={handleRegister}
         className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 transition disabled:opacity-50"
-        disabled={!!action}
+        disabled={!!action || !username}
       >
         {action === REGISTRATION_TYPE ? 'Registering...' : 'Register with WebAuthn'}
       </button>
@@ -129,7 +129,7 @@ export default function AuthForm() {
       {/* Login Button */}
       <button
         onClick={handleLogin}
-        disabled={!!action}
+        disabled={!!action || !username}
         className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-400 transition disabled:bg-gray-400"
       >
         {action === AUTH_TYPE ? 'Logging in...' : 'Login'}

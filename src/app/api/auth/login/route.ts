@@ -1,10 +1,8 @@
-import {
-  verifyAuthenticationResponse,
-  WebAuthnCredential,
-} from "@simplewebauthn/server";
-import { getCredentialFromDB, getChallengeFromDB } from "@/lib/db";
 import { NextResponse } from "next/server";
-import { fromBase64URL } from "@/lib/base64URL";
+
+import { verifyAuthenticationResponse } from "@simplewebauthn/server";
+
+import { getCredentialFromDB, getChallengeFromDB } from "@/lib/db";
 
 export async function POST(req: Request) {
   const { assertionResponse, username } = await req.json();
@@ -29,23 +27,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No challenge found" }, { status: 400 });
   }
 
-  const { credential, origin, rpID, userVerified } = storedCredential;
-  const { id, publicKey, counter, transports } = credential;
-
-  const requestCredential: WebAuthnCredential = {
-    id: id,
-    publicKey: fromBase64URL(publicKey), // Convert from Base64 to Uint8Array
-    counter,
-    transports,
-  };
+  const { credential, origin, userVerified } = storedCredential;
 
   try {
     const verification = await verifyAuthenticationResponse({
       response: assertionResponse, // The response from the frontend
       expectedChallenge, // The challenge you stored during login initiation
-      expectedRPID: rpID,
+      expectedRPID: process.env.NEXT_PUBLIC_HOSTNAME!,
       expectedOrigin: origin,
-      credential: requestCredential,
+      credential,
       requireUserVerification: userVerified, // Optional, depending on your use case
     });
 

@@ -1,6 +1,5 @@
 import { verifyRegistrationResponse } from "@simplewebauthn/server";
 import { saveCredentialToDB, getChallengeFromDB } from "@/lib/db";
-import { toBase64URL } from "@/lib/base64URL";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -18,19 +17,10 @@ export async function POST(req: Request) {
     expectedOrigin: process.env.NEXT_PUBLIC_ORIGIN!,
   });
 
-  const publicKey = verification.registrationInfo?.credential.publicKey;
-
-  if (!verification.verified || !publicKey) {
+  if (!verification.verified ) {
     return NextResponse.json({ error: "Registration failed" }, { status: 400 });
   }
-  const registrationInfo = {
-    ...verification.registrationInfo,
-    credential: {
-      ...verification.registrationInfo?.credential,
-      publicKey: toBase64URL(publicKey), // Convert to Base64URL string
-    },
-  };
 
-  await saveCredentialToDB(username, registrationInfo);
+  await saveCredentialToDB(username, verification.registrationInfo);
   return NextResponse.json({ success: true });
 }

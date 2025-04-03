@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     }
 
     options = await generateAuthenticationOptions({
-      rpID: storedCredential.rpID,
+      rpID: process.env.NEXT_PUBLIC_HOSTNAME!,
       allowCredentials: [
         {
           id: storedCredential.credential.id,

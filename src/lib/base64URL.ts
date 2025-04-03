@@ -1,4 +1,6 @@
-export function toBase64URL(buffer: Uint8Array): string {
+export function toBase64URL(buffer?: Uint8Array): string {
+  if (!buffer) return "";
+
   return Buffer.from(buffer).toString("base64url"); // Native Node.js support
 }
 
