@@ -8,8 +8,8 @@ const getFirebaseAdminConfig = () => ({
   }),
 });
 
-export function initFirebaseAdmin() {
-  if (!admin.apps.length) {
-    admin.initializeApp(getFirebaseAdminConfig());
-  }
+if (!admin.apps.length) {
+  admin.initializeApp(getFirebaseAdminConfig());
 }
+
+export const firestore = admin.firestore();
