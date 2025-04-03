@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     expectedOrigin: process.env.NEXT_PUBLIC_ORIGIN!,
   });
 
-  if (!verification.verified ) {
+  if (!verification.verified) {
     return NextResponse.json({ error: "Registration failed" }, { status: 400 });
   }
 
