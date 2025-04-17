@@ -1,9 +1,11 @@
+import { NextResponse } from "next/server";
+
 import {
   generateRegistrationOptions,
   generateAuthenticationOptions,
 } from "@simplewebauthn/server";
+
 import { getCredentialFromDB, saveChallengeToDB } from "@/lib/db";
-import { NextResponse } from "next/server";
 
 /**
  * Convert a string into a Uint8Array.

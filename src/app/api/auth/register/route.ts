@@ -1,6 +1,8 @@
-import { verifyRegistrationResponse } from "@simplewebauthn/server";
-import { saveCredentialToDB, getChallengeFromDB } from "@/lib/db";
 import { NextResponse } from "next/server";
+
+import { verifyRegistrationResponse } from "@simplewebauthn/server";
+
+import { saveCredentialToDB, getChallengeFromDB } from "@/lib/db";
 
 export async function POST(req: Request) {
   const { attestationResponse, username } = await req.json();
