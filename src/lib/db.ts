@@ -1,11 +1,11 @@
-import { fromBase64URL, toBase64URL } from "@/lib/base64URL";
-import { firestore } from "@/lib/firebaseAdmin";
-import { IRegistrationInfoDB, RegistrationInfoType } from "@/lib/type";
+import { fromBase64URL, toBase64URL } from '@/lib/base64URL'
+import { firestore } from '@/lib/firebaseAdmin'
+import { IRegistrationInfoDB, RegistrationInfoType } from '@/lib/type'
 
 function removeUndefined(obj: unknown): object {
   return JSON.parse(
     JSON.stringify(obj, (key, value) => (value === undefined ? null : value))
-  );
+  )
 }
 
 /**
@@ -13,9 +13,9 @@ function removeUndefined(obj: unknown): object {
  */
 export async function saveChallengeToDB(userID: string, challenge: string) {
   await firestore
-    .collection("challenges")
+    .collection('challenges')
     .doc(userID)
-    .set({ challenge, createdAt: Date.now() });
+    .set({ challenge, createdAt: Date.now() })
 }
 
 /**
@@ -24,8 +24,8 @@ export async function saveChallengeToDB(userID: string, challenge: string) {
 export async function getChallengeFromDB(
   userID: string
 ): Promise<string | null> {
-  const doc = await firestore.collection("challenges").doc(userID).get();
-  return doc.exists ? (doc.data()?.challenge as string) : null;
+  const doc = await firestore.collection('challenges').doc(userID).get()
+  return doc.exists ? (doc.data()?.challenge as string) : null
 }
 
 /**
@@ -38,20 +38,17 @@ export async function saveCredentialToDB(
   const registrationInfoDB: IRegistrationInfoDB = {
     ...registrationInfo,
     credential: {
-      id: registrationInfo?.credential.id || "",
+      id: registrationInfo?.credential.id || '',
       counter: registrationInfo?.credential.counter || 0,
       transports: registrationInfo?.credential.transports,
       ...registrationInfo?.credential,
       publicKey: toBase64URL(registrationInfo?.credential?.publicKey),
     },
-  };
+  }
 
-  const sanitizedCredential = removeUndefined(registrationInfoDB);
+  const sanitizedCredential = removeUndefined(registrationInfoDB)
 
-  await firestore
-    .collection("credentials")
-    .doc(userID)
-    .set(sanitizedCredential);
+  await firestore.collection('credentials').doc(userID).set(sanitizedCredential)
 }
 
 /**
@@ -60,14 +57,14 @@ export async function saveCredentialToDB(
 export async function getCredentialFromDB(
   userID: string
 ): Promise<RegistrationInfoType | null> {
-  const doc = await firestore.collection("credentials").doc(userID).get();
+  const doc = await firestore.collection('credentials').doc(userID).get()
 
-  if (!doc.exists) return null;
+  if (!doc.exists) return null
 
-  const storedRegistrationInfo = doc.data() as IRegistrationInfoDB;
+  const storedRegistrationInfo = doc.data() as IRegistrationInfoDB
 
   if (!storedRegistrationInfo || !storedRegistrationInfo.credential.publicKey)
-    return null;
+    return null
 
   const registrationInfo = {
     ...storedRegistrationInfo,
@@ -77,7 +74,7 @@ export async function getCredentialFromDB(
       transports: storedRegistrationInfo.credential.transports,
       publicKey: fromBase64URL(storedRegistrationInfo?.credential.publicKey),
     },
-  };
+  }
 
-  return registrationInfo as RegistrationInfoType;
+  return registrationInfo as RegistrationInfoType
 }

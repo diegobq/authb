@@ -1,89 +1,91 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { startAuthentication, startRegistration } from '@simplewebauthn/browser';
+import { useState } from 'react'
+import { startAuthentication, startRegistration } from '@simplewebauthn/browser'
 
-const AUTH_TYPE = "authentication";
-const REGISTRATION_TYPE = "registration";
-const UKN_ERROR = "An unknown error occurred";
+const AUTH_TYPE = 'authentication'
+const REGISTRATION_TYPE = 'registration'
+const UKN_ERROR = 'An unknown error occurred'
 
 export default function AuthForm() {
-  const [username, setUsername] = useState('');
-  const [action, setAction] = useState('');
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [username, setUsername] = useState('')
+  const [action, setAction] = useState('')
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   async function handleRegister() {
-    setSuccess("");
-    setAction(REGISTRATION_TYPE);
+    setSuccess('')
+    setAction(REGISTRATION_TYPE)
 
     try {
       const response = await fetch('/api/auth/generate-challenge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, type: REGISTRATION_TYPE }),
-      });
+      })
 
-      const options = await response.json();
-      if (!options) throw new Error('No registration options received.');
+      const options = await response.json()
+      if (!options) throw new Error('No registration options received.')
 
-      const attestationResponse = await startRegistration(options);
+      const attestationResponse = await startRegistration(options)
       const registerResponse = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ attestationResponse, username })
-      });
+        body: JSON.stringify({ attestationResponse, username }),
+      })
 
-      const data = await registerResponse.json();
-      if (!data.success) throw new Error("Registration failed.");
+      const data = await registerResponse.json()
+      if (!data.success) throw new Error('Registration failed.')
 
-      setSuccess(REGISTRATION_TYPE);
-      setError("");
+      setSuccess(REGISTRATION_TYPE)
+      setError('')
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : UKN_ERROR);
-      setSuccess("");
+      setError(e instanceof Error ? e.message : UKN_ERROR)
+      setSuccess('')
     } finally {
-      setAction("");
+      setAction('')
     }
   }
 
   async function handleLogin() {
-    setSuccess("");
-    setAction(AUTH_TYPE);
+    setSuccess('')
+    setAction(AUTH_TYPE)
 
     try {
       const response = await fetch('/api/auth/generate-challenge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, type: AUTH_TYPE }),
-      });
+      })
 
-      const options = await response.json();
-      if (!options) throw new Error('No authentication options received.');
+      const options = await response.json()
+      if (!options) throw new Error('No authentication options received.')
 
-      const assertionResponse = await startAuthentication(options);
+      const assertionResponse = await startAuthentication(options)
       const loginResponse = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ assertionResponse, username })
-      });
+        body: JSON.stringify({ assertionResponse, username }),
+      })
 
-      const data = await loginResponse.json();
-      if (!data.success) throw new Error("Login failed.");
+      const data = await loginResponse.json()
+      if (!data.success) throw new Error('Login failed.')
 
-      setSuccess(AUTH_TYPE);
-      setError("");
+      setSuccess(AUTH_TYPE)
+      setError('')
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : UKN_ERROR);
-      setSuccess("");
+      setError(e instanceof Error ? e.message : UKN_ERROR)
+      setSuccess('')
     } finally {
-      setAction("");
+      setAction('')
     }
   }
 
   return (
     <div className="flex flex-col items-center gap-5 p-6 max-w-md mx-auto border rounded-xl shadow-lg bg-white dark:bg-gray-900 dark:text-white transition-colors">
-      <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">WebAuthn Authentication</h2>
+      <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+        WebAuthn Authentication
+      </h2>
 
       {/* Status Messages - Hidden when empty */}
       {(error || success) && (
@@ -113,18 +115,9 @@ export default function AuthForm() {
         disabled={!!action}
         value={username}
         onChange={(e) => setUsername(e.target.value.toLowerCase())}
-        onKeyDown={(e) => e.key === 'Enter' && handleRegister()}
+        onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
         className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white dark:border-gray-600"
       />
-
-      {/* Register Button */}
-      <button
-        onClick={handleRegister}
-        className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 transition disabled:opacity-50"
-        disabled={!!action || !username}
-      >
-        {action === REGISTRATION_TYPE ? 'Registering...' : 'Register with WebAuthn'}
-      </button>
 
       {/* Login Button */}
       <button
@@ -134,6 +127,17 @@ export default function AuthForm() {
       >
         {action === AUTH_TYPE ? 'Logging in...' : 'Login'}
       </button>
+
+      {/* Register Button */}
+      <button
+        onClick={handleRegister}
+        className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400 transition disabled:opacity-50"
+        disabled={!!action || !username}
+      >
+        {action === REGISTRATION_TYPE
+          ? 'Registering...'
+          : 'Register with WebAuthn'}
+      </button>
     </div>
-  );
+  )
 }

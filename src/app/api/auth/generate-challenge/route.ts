@@ -1,39 +1,39 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server'
 
 import {
   generateRegistrationOptions,
   generateAuthenticationOptions,
-} from "@simplewebauthn/server";
+} from '@simplewebauthn/server'
 
-import { getCredentialFromDB, saveChallengeToDB } from "@/lib/db";
+import { getCredentialFromDB, saveChallengeToDB } from '@/lib/db'
 
 /**
  * Convert a string into a Uint8Array.
  */
 function encodeUserID(userID: string): Uint8Array {
-  return new TextEncoder().encode(userID);
+  return new TextEncoder().encode(userID)
 }
 
 export async function POST(req: Request) {
-  const { username, type } = await req.json();
+  const { username, type } = await req.json()
 
-  let options;
+  let options
 
-  if (type === "registration") {
+  if (type === 'registration') {
     options = await generateRegistrationOptions({
       rpID: process.env.NEXT_PUBLIC_HOSTNAME!,
-      rpName: "My WebAuthn App",
+      rpName: 'My WebAuthn App',
       userID: encodeUserID(username),
       userName: username,
-      attestationType: "none",
-    });
+      attestationType: 'none',
+    })
   } else {
-    const storedCredential = await getCredentialFromDB(username);
+    const storedCredential = await getCredentialFromDB(username)
     if (!storedCredential) {
       return NextResponse.json(
-        { error: "No credentials found. Please register first." },
+        { error: 'No credentials found. Please register first.' },
         { status: 400 }
-      );
+      )
     }
 
     options = await generateAuthenticationOptions({
@@ -43,9 +43,9 @@ export async function POST(req: Request) {
           id: storedCredential.credential.id,
         },
       ],
-    });
+    })
   }
 
-  await saveChallengeToDB(username, options.challenge);
-  return NextResponse.json(options);
+  await saveChallengeToDB(username, options.challenge)
+  return NextResponse.json(options)
 }
